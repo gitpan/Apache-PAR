@@ -11,7 +11,7 @@ use vars qw(@ISA %EXPORT_TAGS @EXPORT_OK @EXPORT $VERSION);
 @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 @EXPORT = qw( );
 
-$VERSION = '0.21';
+$VERSION = '0.30';
 
 use Apache::Constants qw(OK NOT_FOUND FORBIDDEN);
 use Archive::Zip ();

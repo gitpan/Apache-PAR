@@ -1,4 +1,4 @@
-Apache/PAR version 0.21
+Apache/PAR version 0.30
 =======================
 
 Apache::PAR is a framework for including Perl ARchive files in a mod_perl (1.x or 2.x) environment.  It allows an author to package up a web application, including configuration, static files, Perl modules, and Registry and PerlRun scripts to include in a single file.  This archive can then be moved to other locations on the same system or distributed, and loaded with a single set of configuration options in the Apache configuration.
@@ -18,11 +18,14 @@ DEPENDENCIES
 
 This module requires these other modules and libraries:
 
-PAR.pm       >= .49
+PAR.pm       >= .74
 Archive::Zip >= 1.05
 MIME::Types  >= 1.004
 mod_perl     >= 1.26 (or > 1.99)
 Apache::Test >= 1.03
+Digest::MD5  >= 2.20
+File::Spec   >= .83
+File::Path   >= 1.05
 
 In addition, the following optional modules can provide additional functionality to Apache::PAR
 Cache::Cache >= 1.01 - Allows caching in the Apache::PAR::Static module
@@ -40,7 +43,7 @@ Apache::PAR should work with both mod_perl 1.x and 2.x.  There are a few known i
 
 COPYRIGHT AND LICENCE
 
-Copyright 2002 by Nathan Byrd, <nathan@byrd.net>.
+Copyright 2002, 2003 by Nathan Byrd, <nathan@byrd.net>.
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.

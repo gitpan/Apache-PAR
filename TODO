@@ -1,6 +1,5 @@
 Many things, including:
 * More security testing
-* Make it possible for other files to be loaded from within a .par archive by Registry and PerlRun scripts (without coding changes to the scripts?!)
 * Improve caching support for Apache::PAR::Static - create ability to cache on server startup
 * Implement RegistryLoader
 * Implement a HTML::Template::PAR, others
@@ -8,4 +7,5 @@ Many things, including:
 * Support for author signatures in PAR files
 * Support for loading PAR files from network
 * PAR's within PAR's (like EAR files for Java)
+* Ability to specify UNPACKLIST to list files to unpack
 * New features...

@@ -9,7 +9,7 @@ use Apache::Test qw(plan ok have_lwp);
 use Apache::TestRequest qw(GET);
 use Apache::TestUtil qw(t_cmp);
 
-plan tests => 4, have_lwp;
+plan tests => 8, have_lwp;
 
 # Basic request
 for(1..2)
@@ -21,6 +21,20 @@ for(1..2)
 	}
 	else {
 		ok(1);
+	}
+}
+
+# Test ##UNPACKDIR##
+for(1..2)
+{
+	my $response = GET '/test/module/';
+	if(!$response->is_success) {
+		ok(0);
+		print STDERR "Received failure code: " . $response->code . "\n";
+	}
+	else {
+		my $content = $response->content;
+		ok t_cmp(qr/FILE: GOT FILE/, $content);
 	}
 }
 
@@ -38,3 +52,41 @@ for (1..2)
 	}
 }
 
+use Archive::Zip;
+my $module_zip = Archive::Zip->new('par/module.par');
+my $lib_member = $module_zip->removeMember('lib/TestMod.pm');
+my $contents = $lib_member->contents();
+my $contents_save = $contents;
+$contents =~ s/Perl\sModule/TEST CHANGES/;
+$lib_member->contents($contents);
+$module_zip->addMember($lib_member);
+$module_zip->overwrite();
+undef $lib_member;
+undef $module_zip;
+sleep 2;
+
+for(1..2)
+{
+	my $response = GET '/test/module/';
+	if(!$response->is_success) {
+		ok(0);
+		print STDERR "Received failure code: " . $response->code . "\n";
+	}
+	else {
+		my $contents_check = $response->content;
+        if( $contents_check =~ /TEST\sCHANGES/ ) {
+        	ok(1);
+       	}
+       	else {
+       		ok(0);
+       	}
+	}
+}
+
+my $newmodule_zip = Archive::Zip->new('par/module.par');
+$lib_member = $newmodule_zip->removeMember('lib/TestMod.pm');
+my $contents_new = $lib_member->contents();
+$lib_member->contents($contents_save);
+$newmodule_zip->addMember($lib_member);
+$newmodule_zip->overwrite();
+undef $newmodule_zip;

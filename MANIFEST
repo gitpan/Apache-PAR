@@ -15,10 +15,12 @@ t/00registry.t
 t/00perlrun.t
 t/00module.t
 t/00par.t
+t/00unpack.t
 t/par/static.par
 t/par/registry.par
 t/par/perlrun.par
 t/par/module.par
+t/par/unpack.par
 t/conf/extra.conf.in
 t/conf/modperl_1.pl
 t/conf/modperl_2.pl

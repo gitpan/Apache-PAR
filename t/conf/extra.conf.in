@@ -4,6 +4,7 @@ PerlModule Apache2
 PerlSetVar PARInclude @ServerRoot@/par/static.par
 PerlAddVar PARInclude @ServerRoot@/par/registry.par
 PerlAddVar PARInclude @ServerRoot@/par/perlrun.par
+PerlAddVar PARInclude @ServerRoot@/par/unpack.par
 # Should ignore duplicates
 PerlAddVar PARInclude @ServerRoot@/par/perlrun.par
 # Try it this way too for support of old versions
@@ -73,3 +74,6 @@ PerlModule Apache::PAR
 #<PERL>
 #import Apache::PAR qw(@ServerRoot@/par/registry.par);
 #</PERL>
+
+#PerlModule Apache::PAR
+PerlInitHandler Apache::PAR

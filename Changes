@@ -1,4 +1,14 @@
 Revision history for Perl extension Apache::PAR.
+0.30  Thu Aug 25 23:30:00 2003
+	- Added support for reloading modules from within PAR files
+	  Thanks to Raymond Field for the report
+	- Added support for unpacking content of PAR files
+	  Thanks to Maurice Aubrey for the implementation!
+	  Use PerlSetVar PARTempDir to specify (defaults to platform temp dir)
+	  and ##UNPACKDIR## within web.conf to enable/use
+	- New tests and documentation to reflect these changes.
+	- Note: Apache::PAR now requires PAR .74 due to required changes for
+	  reload functionality
 0.21  Sat Jun 07 22:00:00 2003
 	- Changed required version of Apache::Test to 1.01 - 1.03 was not
 	  on CPAN
