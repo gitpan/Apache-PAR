@@ -17,7 +17,7 @@ WriteMakefile(
     	MIME::Types  => 1.004,
     	Archive::Zip => 1.05,
     	mod_perl     => 1.26,
-    	Apache::Test => 1.03,
+    	Apache::Test => 1.01,
     }, 
     ($] >= 5.005 ?    ## Add these new keywords supported since 5.005
       (ABSTRACT_FROM => 'PAR.pm', # retrieve abstract from module

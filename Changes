@@ -1,5 +1,8 @@
 Revision history for Perl extension Apache::PAR.
-0.20  Sun Apr ?? ??:??:?? 2003
+0.21  Sat Jun 07 22:00:00 2003
+	- Changed required version of Apache::Test to 1.01 - 1.03 was not
+	  on CPAN
+0.20  Sun Jun 03 ??:??:?? 2003
 	- Changed to use Apache::Test for tests - testing should now work
 	  on Win32 and mod_perl 2.x
 	  ** Note: Apache::Test is now a required module for Apache::PAR **

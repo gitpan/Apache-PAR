@@ -20,7 +20,7 @@ use vars qw(@ISA %EXPORT_TAGS @EXPORT_OK @EXPORT $VERSION);
 @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 @EXPORT = qw( );
 
-$VERSION = '0.20';
+$VERSION = '0.21';
 
 unless ($mod_perl::VERSION < 1.99) {
 	require Apache::Const;

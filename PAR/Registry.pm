@@ -12,7 +12,7 @@ use vars qw(@ISA %EXPORT_TAGS @EXPORT_OK @EXPORT $VERSION);
 @EXPORT = qw( );
 @ISA = qw(Exporter);
 
-$VERSION = '0.20';
+$VERSION = '0.21';
 
 unless ($mod_perl::VERSION < 1.99) {
 	@ISA = qw(Exporter Apache::PAR::RegistryCooker);

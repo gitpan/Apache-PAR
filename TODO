@@ -1,9 +1,11 @@
 Many things, including:
 * More security testing
 * Make it possible for other files to be loaded from within a .par archive by Registry and PerlRun scripts (without coding changes to the scripts?!)
-* Make test work under mod_perl2 or if running as root (waiting for Apache::Test to be release to CPAN)
 * Improve caching support for Apache::PAR::Static - create ability to cache on server startup
 * Implement RegistryLoader
 * Implement a HTML::Template::PAR, others
 * Redesign tests to generate par files, move contents to tmp directory if necessary
+* Support for author signatures in PAR files
+* Support for loading PAR files from network
+* PAR's within PAR's (like EAR files for Java)
 * New features...
