@@ -8,4 +8,5 @@ Many things, including:
 * Create base class for Apache::PAR::Static.pm (as a standalone CPAN module?)
 * Code cleanup
 * Make it run under Module::Builder?
+* Implement RegistryLoader
 * New features...

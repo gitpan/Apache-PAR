@@ -6,7 +6,7 @@ use warnings FATAL => 'all';
 # we try to develop so we reload ourselves without die'ing on the warning
 no warnings qw(redefine); # XXX, this should go away in production!
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 our @ISA = qw(ModPerl::RegistryCooker);
 use base qw(ModPerl::RegistryCooker);
@@ -27,17 +27,11 @@ use APR::Table ();
 use ModPerl::Util ();
 use ModPerl::Global ();
 
-# FIXME This will break if ModPerl::RegistryLoader changes
-# But since init() does not initialize all, we can't just
-# use -1 (because that could change later)
-
-use constant PARDATA => 8;
-
 sub handler : method {
 	my $class = (@_ >= 2) ? shift : __PACKAGE__;
 	my $r = shift;
 	my $self = $class->new($r);
-	$self->[PARDATA] = {
+	$self->{PARDATA} = {
 		MEMBER          => undef,
 		ZIP             => undef,
 		SCRIPT_PATH     => undef,
@@ -49,15 +43,14 @@ sub handler : method {
 sub read_PAR_script {
 	my $self = shift;
 
-	$self->debug("reading $self->[ModPerl::RegistryCooker::FILENAME]") if ModPerl::RegistryCooker::DEBUG & ModPerl::RegistryCooker::D_NOISE;
-	my $contents = $self->[PARDATA]{MEMBER}->contents;
-	$self->[ModPerl::RegistryCooker::CODE] = \$contents;
+	my $contents = $self->{PARDATA}{MEMBER}->contents;
+	$self->{CODE} = \$contents;
 }
 
 sub can_PAR_compile {
 	my $self = shift;
-	my $r = $self->[ModPerl::RegistryCooker::REQ];
-	my $filename = $self->[ModPerl::RegistryCooker::FILENAME];
+	my $r = $self->{REQ};
+	my $filename = $self->{FILENAME};
 	my $path_info = $r->path_info;
 
 	unless ($self->_find_file_parts()) {
@@ -65,14 +58,12 @@ sub can_PAR_compile {
 		return Apache::NOT_FOUND;
 	}
 
-	if(defined($self->[PARDATA]{MEMBER}) && $self->[PARDATA]{MEMBER}->isDirectory()) {
+	if(defined($self->{PARDATA}{MEMBER}) && $self->{PARDATA}{MEMBER}->isDirectory()) {
 		$self->log_error("Unable to serve directory from PAR file");
 		return Apache::FORBIDDEN;
 	}
 
-	$self->[ModPerl::RegistryCooker::MTIME] = $self->[PARDATA]{MEMBER}->lastModTime();
-
-	$self->debug("can compile $path_info inside $filename") if ModPerl::RegistryCooker::DEBUG & ModPerl::RegistryCooker::D_NOISE;
+	$self->{MTIME} = $self->{PARDATA}{MEMBER}->lastModTime();
 
 	return Apache::OK;
 
@@ -80,23 +71,23 @@ sub can_PAR_compile {
 
 sub set_PAR_script_name {
 	my $self = shift;
-	my $r    = $self->[ModPerl::RegistryCooker::REQ];
-	my @file_parts = split(/\//, $self->[PARDATA]{SCRIPT_PATH});
+	my $r    = $self->{REQ};
+	my @file_parts = split(/\//, $self->{PARDATA}{SCRIPT_PATH});
 	my $filename   = $file_parts[-1];
 	*0 = \$filename;
 
 	# Additionally, we want to set the extra path info correctly
 	# for use in a script
-	my $path_info = $self->[PARDATA]{EXTRA_PATH_INFO} ? "/$self->[PARDATA]{EXTRA_PATH_INFO}" : '';
+	my $path_info = $self->{PARDATA}{EXTRA_PATH_INFO} ? "/$self->{PARDATA}{EXTRA_PATH_INFO}" : '';
 	$r->path_info($path_info);
 	$ENV{PATH_INFO} = $path_info; # Is this the right thing to do in all cases?
-	$r->filename($self->[PARDATA]{SCRIPT_PATH});
-	$self->[ModPerl::RegistryCooker::FILENAME] = $self->[PARDATA]{SCRIPT_PATH};
+	$r->filename($self->{PARDATA}{SCRIPT_PATH});
+	$self->{FILENAME} = $self->{PARDATA}{SCRIPT_PATH};
 }
 
 sub namespace_from_PAR {
 	my $self = shift;
-	my $r = $self->[ModPerl::RegistryCooker::REQ];
+	my $r = $self->{REQ};
 	my $namespace_path = $r->path_info;
 	my ($volume, $dirs, $file) =
 		File::Spec::Functions::splitpath($namespace_path);
@@ -106,20 +97,31 @@ sub namespace_from_PAR {
 
 sub _find_file_parts {
 	my $self        = shift;
-	my $r           = $self->[ModPerl::RegistryCooker::REQ];
+	my $r           = $self->{REQ};
 	my $path_info   = $r->path_info;
 	my $filename    = $r->filename;
 
 	$path_info      =~ s/^\///;
 	my @path_broken = split(/\//, $path_info);
-	my $cur_path    = $r->dir_config->get('PARPerlRunPath');
+	my $path_name   = 'PARPerlRunPath';
+	if($self->isa('Apache::PAR::Registry'))
+	{
+		$path_name = 'PARRegistryPath';
+	}
+	my $cur_path    = $r->dir_config->get($path_name);
+
 	$cur_path     ||= 'scripts/';
 	$cur_path       =~ s/\/$//;
+
+	Archive::Zip::setErrorHandler(sub {});
 	my $zip = Archive::Zip->new($filename);
 	unless(defined($zip)) {
 		$r->log_error("Unable to open file $filename");
 		return undef;
 	}
+
+	# If starting path is /, start with next element
+	$cur_path = shift(@path_broken) if $cur_path eq '';
 
 	my $cur_member  = undef;
 	while(defined(($cur_member = $zip->memberNamed($cur_path) || $zip->memberNamed("$cur_path/"))) && @path_broken) {
@@ -128,10 +130,10 @@ sub _find_file_parts {
 	}
 	$cur_member = $zip->memberNamed($cur_path);
 	return undef unless (defined($cur_member));
-	$self->[PARDATA]{ZIP}             = $zip;
-	$self->[PARDATA]{MEMBER}          = $cur_member;
-	$self->[PARDATA]{SCRIPT_PATH}     = $cur_path;
-	$self->[PARDATA]{EXTRA_PATH_INFO} = join('/', @path_broken);
+	$self->{PARDATA}{ZIP}             = $zip;
+	$self->{PARDATA}{MEMBER}          = $cur_member;
+	$self->{PARDATA}{SCRIPT_PATH}     = $cur_path;
+	$self->{PARDATA}{EXTRA_PATH_INFO} = join('/', @path_broken);
 	return $cur_path;
 }
 

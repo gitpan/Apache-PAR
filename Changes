@@ -1,4 +1,18 @@
 Revision history for Perl extension Apache::PAR.
+0.11  Mon Mar 10 21:51:00 2003
+	- Changes to stay compatible with latest mod_perl CVS.  This
+	  change is not backwards compatible, however.  For mod_perl 2.x
+	  the CVS version is currently required
+	- Some code cleanup
+	- Added more tests (not yet complete)
+	- Made errors from Archive::Zip silent (less noise to logs)
+	- Added additional tests
+	- Apache::PAR::Registry was using PARPerlRunPath instead of 
+	  PARRegistryPath, identified by Raymond Field
+	- PARPerlRunPath and PARRegistryPath failed to find contents 
+	  if set to "/", identified by Raymond Field
+	- WIN32 fix (untested) for setting ##PARFILE## to reasonable value 
+	  on that platform for Apache, identified by Raymond Field
 0.10  Sat Feb 01 21:20:00 2003
 	- Added initial support for mod_perl 2!
 	- See TODO for more information

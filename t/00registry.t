@@ -9,7 +9,7 @@ use Test;
 use Apache::test qw(skip_test have_httpd);
 skip_test unless have_httpd;
 
-plan tests => 6;
+plan tests => 8;
 
 # Basic request
 my $response = Apache::test->fetch('/test/registry/test.pl');
@@ -23,6 +23,26 @@ else {
 
 # Basic request (again, just to make sure nothing funny is going on)
 my $response = Apache::test->fetch('/test/registry/test.pl');
+if(!$response->is_success) {
+	ok(0);
+	print STDERR "Received failure code: " . $response->code . "\n";
+}
+else {
+	ok(1);
+}
+
+# test configuration setup directly in httpd
+my $response = Apache::test->fetch('/test/registryroot/test.pl');
+if(!$response->is_success) {
+	ok(0);
+	print STDERR "Received failure code: " . $response->code . "\n";
+}
+else {
+	ok(1);
+}
+
+# test configuration setup directly in httpd
+my $response = Apache::test->fetch('/test/registry2/test2.pl');
 if(!$response->is_success) {
 	ok(0);
 	print STDERR "Received failure code: " . $response->code . "\n";

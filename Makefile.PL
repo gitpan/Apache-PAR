@@ -19,6 +19,42 @@ PerlSetVar PARFile $par_path/registry.par
 PerlAddVar PARFile $par_path/static.par
 PerlAddVar PARFile $par_path/perlrun.par
 PerlAddVar PARFile $par_path/module.par
+
+Alias /test/registryroot/ $par_path/registry.par/
+<Location /test/registryroot>
+Options +ExecCGI
+SetHandler perl-script
+PerlHandler Apache::PAR::Registry
+PerlSetVar PARRegistryPath /
+</Location>
+
+Alias /test/registry2/ $par_path/registry.par/
+<Location /test/registry2>
+Options +ExecCGI
+SetHandler perl-script
+PerlHandler Apache::PAR::Registry
+PerlSetVar PARRegistryPath scripts2/
+</Location>
+
+Alias /test/perlrunroot/ $par_path/perlrun.par/
+<Location /test/perlrunroot>
+Options +ExecCGI
+SetHandler perl-script
+PerlHandler Apache::PAR::PerlRun
+PerlSetVar PARPerlRunPath /
+</Location>
+
+Alias /test/perlrun2/ $par_path/perlrun.par/
+<Location /test/perlrun2>
+Options +ExecCGI
+SetHandler perl-script
+PerlHandler Apache::PAR::PerlRun
+PerlSetVar PARPerlRunPath scripts2/
+</Location>
+
+#PerlAddVar PARFile $par_path/bad.par
+#PerlAddVar PARFile $par_path/not_found.par
+#PerlAddVar PARDir $par_path/not_dir/
 PerlModule Apache::PAR
 CONF
 

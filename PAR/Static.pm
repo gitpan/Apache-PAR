@@ -15,7 +15,7 @@ use vars qw(@ISA %EXPORT_TAGS @EXPORT_OK @EXPORT $VERSION);
 
 @EXPORT = qw( );
 
-$VERSION = '0.10';
+$VERSION = '0.11';
 
 if(eval "Apache::exists_config_define('MODPERL2')") {
 	require Apache::Const;
@@ -33,6 +33,7 @@ else {
 }
 
 use MIME::Types();
+use Archive::Zip qw(:ERROR_CODES :CONSTANTS);
 
 sub handler {
 	my $r = shift;
@@ -45,6 +46,7 @@ sub handler {
 	$file_path      .= '/' if ($file_path !~ /\/$/);
 	$file_path      .= $path_info;
 
+	Archive::Zip::setErrorHandler(sub {});
 	my $zip = Archive::Zip->new($filename);
 	return NOT_FOUND() unless(defined($zip));
 
@@ -87,7 +89,9 @@ sub handler {
 
 
 	if((my $status = $r->meets_conditions) eq OK()) {
-		$r->send_http_header;
+		if(!eval "Apache::exists_config_define('MODPERL2')") {
+			$r->send_http_header;
+		}
 	}
 	else {
 		return $status;

@@ -13,6 +13,7 @@ t/00static.t
 t/00registry.t
 t/00perlrun.t
 t/00module.t
+t/00par.t
 t/par/static.par
 t/par/registry.par
 t/par/perlrun.par

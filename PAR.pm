@@ -15,7 +15,7 @@ use vars qw(@ISA %EXPORT_TAGS @EXPORT_OK @EXPORT $VERSION);
 
 @EXPORT = qw( );
 
-$VERSION = '0.10';
+$VERSION = '0.11';
 
 if(eval "Apache::exists_config_define('MODPERL2')") {
 	require Apache::ServerUtil;
@@ -27,6 +27,7 @@ else {
 }
 
 use Archive::Zip qw(:ERROR_CODES :CONSTANTS);
+Archive::Zip::setErrorHandler(sub {});
 
 my @pardir      = Apache->server->dir_config->get('PARDir');
 my @parfiles    = Apache->server->dir_config->get('PARFile');
@@ -39,7 +40,7 @@ my @pars = ();
 foreach my $parfile (@parfiles) {
 	$parfile = Apache->server_root_relative($parfile);
 	if(!(-f $parfile)) {
-		print STDERR "Bad PARFile: $parfile\n";
+		print STDERR "PARFile doesn't exist: $parfile\n";
 		next;
 	}
 	push(@pars, $parfile);
@@ -50,7 +51,7 @@ foreach my $dir (@pardir)
 	$dir = Apache->server_root_relative($dir);
 	$dir =~ s/\/$//;
 	if(!-d $dir) {
-		print STDERR "Bad PARDir: $dir\n";
+		print STDERR "PARDir doesn't exist: $dir\n";
 		next;
 	}
 	opendir(DIR, $dir);
@@ -70,12 +71,19 @@ die "Could not load PAR, $@\n" if($@);
 
 foreach my $file (@pars) {
 	my $zip = Archive::Zip->new($file);
-	next unless(defined($zip));
+	unless(defined($zip)) {
+		print STDERR "$file does not seem to be a valid PAR (Zip) file. Skipping.\n";
+		next;
+	}
 	my $conf_member = $zip->memberNamed($conf_file);
 	next if(!defined($conf_member));
 	print STDERR "Including configuration from $file\n";
 	my $conf = $conf_member->contents;
 	my $err = undef;
+
+	# Apache on Win32 needs forward slashes
+	$file =~ s!\\!/!g if $^O eq 'MSWin32';
+
 	$conf =~ s/##PARFILE##/$file/g;
 	if(eval "Apache::exists_config_define('MODPERL2')") {
 		$err = Apache->server->add_config([split /\n/, $conf]);
@@ -100,9 +108,9 @@ Apache::PAR - Perl extension for including Perl ARchive files in a mod_perl (1.x
     <IfDefine MODPERL2>
       PerlModule Apache::ServerUtil
     </IfDefine>
-    PARDir /path/to/par/archive/directory
+    PerlSetVar PARDir /path/to/par/archive/directory
     ...
-    PARFile /path/to/a/par/file.par
+    PerlSetVar PARFile /path/to/a/par/file.par
     ...
     PerlModule Apache::PAR
 

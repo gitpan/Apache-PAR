@@ -11,7 +11,7 @@ use vars qw(@ISA %EXPORT_TAGS @EXPORT_OK @EXPORT $VERSION);
 
 @EXPORT = qw( );
 
-$VERSION = '.10';
+$VERSION = '.11';
 
 @ISA = qw(Exporter);
 

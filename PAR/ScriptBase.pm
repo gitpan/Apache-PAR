@@ -14,7 +14,7 @@ use vars qw(@ISA %EXPORT_TAGS @EXPORT_OK @EXPORT $VERSION);
 
 @EXPORT = qw( );
 
-$VERSION = '0.10';
+$VERSION = '0.11';
 
 use Apache::Constants qw(:common);
 use Archive::Zip qw(:ERROR_CODES :CONSTANTS);
@@ -35,9 +35,8 @@ sub set_script_name {
 }
 
 sub _can_compile {
-	my $pr = shift;
-
-	my $r = $pr->{r};
+	my $pr        = shift;
+	my $r         = $pr->{r};
 	my $filename  = $r->filename;
 	my $path_info = $r->path_info;
 
@@ -65,14 +64,25 @@ sub _find_file_parts {
 
 	$path_info      =~ s/^\///;
 	my @path_broken = split(/\//, $path_info);
-	my $cur_path    = $r->dir_config('PARPerlRunPath') || 'scripts/';
+
+        my $path_name   = 'PARPerlRunPath';
+        if($pr->isa('Apache::PAR::Registry'))
+        {
+                $path_name = 'PARRegistryPath';
+        }
+
+	my $cur_path    = $r->dir_config($path_name) || 'scripts/';
 	$cur_path =~ s/\/$//;
 
+	Archive::Zip::setErrorHandler(sub {});
 	my $zip = Archive::Zip->new($filename);
 	unless(defined($zip)) {
 		$r->log_error("Unable to open file $filename");
 		return undef;
 	}
+
+	# If starting path is /, start with next element
+	$cur_path = shift(@path_broken) if $cur_path eq '';
 
 	my $cur_member  = undef;
 	while(defined(($cur_member = $zip->memberNamed($cur_path) || $zip->memberNamed("$cur_path/"))) && @path_broken) {
