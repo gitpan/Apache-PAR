@@ -1,20 +1,19 @@
 package Apache::PAR::PerlRun;
 
 use strict;
-use warnings;
 
+# for version detection
+require mod_perl;
+
+# Exporter
 require Exporter;
-require mod_perl; # for version detection
 use vars qw(@ISA %EXPORT_TAGS @EXPORT_OK @EXPORT $VERSION);
 %EXPORT_TAGS = ( 'all' => [ qw( ) ] );
-
 @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
-
 @EXPORT = qw( );
-
-$VERSION = '.12';
-
 @ISA = qw(Exporter);
+
+$VERSION = '.14';
 
 unless ($mod_perl::VERSION < 1.99) {
 	@ISA = qw(Exporter Apache::PAR::RegistryCooker);

@@ -2,21 +2,13 @@ package Apache::PAR;
 
 use 5.005;
 use strict;
-use warnings;
-use Config;
 
-#require Exporter;
 require mod_perl; # For version detection
-use vars qw(@ISA %EXPORT_TAGS @EXPORT_OK @EXPORT $VERSION %PARFILE_LIST);
-#@ISA = qw(Exporter);
 
-%EXPORT_TAGS = ( 'all' => [ qw( ) ] ); 
+# Since we don't use exporter, only export what we need
+use vars qw($VERSION %PARFILE_LIST);
 
-@EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
-
-@EXPORT = qw( );
-
-$VERSION = '0.12';
+$VERSION = '0.14';
 
 unless ($mod_perl::VERSION < 1.99) {
 	require Apache::ServerUtil;
@@ -27,12 +19,12 @@ else {
 	require Apache::Server;
 }
 
-use Archive::Zip qw(:ERROR_CODES :CONSTANTS);
+use Archive::Zip ();
 Archive::Zip::setErrorHandler(sub {});
+
 my @pardir      = Apache->server->dir_config->get('PARDir');
 my @parfiles    = Apache->server->dir_config->get('PARFile');
 my @parloc      = Apache->server->dir_config->get('PARInclude');
-import(__PACKAGE__,@pardir,@parfiles,@parloc);
 
 sub import {
 	shift;
@@ -45,7 +37,7 @@ sub import {
 		$parentry = Apache->server_root_relative($parentry);
 		$parentry =~ s/\/$//;
 		if(!(-e $parentry)) {
-			print STERR "PAR: No such file or directory: $parentry\n";
+			print STDERR "PAR: No such file or directory: $parentry\n";
 			next;
 		}
 		if(-f _) {
@@ -82,9 +74,6 @@ sub import {
 		my $conf = $conf_member->contents;
 		my $err = undef;
 	
-		# Apache on Win32 needs forward slashes
-		$file =~ s!\\!/!g if $Config{osname} eq 'MSWin32';
-
 		$conf =~ s/##PARFILE##/$file/g;
 
 
@@ -100,6 +89,8 @@ sub import {
 	map {$PARFILE_LIST{$_} = 1;} @pars;
 
 }
+
+import(__PACKAGE__,@pardir,@parfiles,@parloc);
 
 1;
 __END__

@@ -2,22 +2,19 @@ package Apache::PAR::ScriptBase;
 
 use 5.005;
 use strict;
-use warnings;
 
+# Exporter
 require Exporter;
 use vars qw(@ISA %EXPORT_TAGS @EXPORT_OK @EXPORT $VERSION);
 @ISA = qw(Exporter);
-
 %EXPORT_TAGS = ( 'all' => [ qw( ) ] );
-
 @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
-
 @EXPORT = qw( );
 
-$VERSION = '0.12';
+$VERSION = '0.14';
 
-use Apache::Constants qw(:common);
-use Archive::Zip qw(:ERROR_CODES :CONSTANTS);
+use Apache::Constants qw(OK NOT_FOUND FORBIDDEN);
+use Archive::Zip ();
 
 sub readscript {
 	my $pr = shift;

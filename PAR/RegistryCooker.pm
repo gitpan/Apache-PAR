@@ -6,7 +6,7 @@ use warnings FATAL => 'all';
 # we try to develop so we reload ourselves without die'ing on the warning
 no warnings qw(redefine); # XXX, this should go away in production!
 
-our $VERSION = '0.12';
+our $VERSION = '0.14';
 
 our @ISA = qw(ModPerl::RegistryCooker);
 use base qw(ModPerl::RegistryCooker);

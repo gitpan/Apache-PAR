@@ -1,4 +1,15 @@
 Revision history for Perl extension Apache::PAR.
+0.14  Sun Apr 30 13:00:00 2003
+	- Added ability to do caching to the Apache::PAR::Static module
+	  (see documentation in that module for details.)  To use caching
+	  the Cache::Cache module is required 
+	- Some general code cleanup performed
+	- Switched to Eclipse IDE for editing / CVS management of project
+	- Removed use warnings to work with old versions of Perl
+	- Removed exporter tags from PAR.pm since we weren't using
+	  them anyway.
+	- Removed Win32 "fix" that wasn't necessary
+
 0.12  Thu Mar 27 22:00:00 2003
 	- Some testing performed on Win32 platforms Win 98 and Win 2k 
 	  (thanks to Raymond Field.  Documentation changed to reflect 

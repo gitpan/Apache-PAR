@@ -1,8 +1,9 @@
 Many things, including:
 * More security testing
 * Make it possible for other files to be loaded from within a .par archive by Registry and PerlRun scripts (without coding changes to the scripts?!)
-* Make test work under mod_perl2 or if running as root
-* Create base class for Apache::PAR::Static.pm (as a standalone CPAN module?) - support reading defaults from mod_dir
-* Code cleanup
+* Make test work under mod_perl2 or if running as root (waiting for Apache::Test to be release to CPAN)
+* Improve caching support for Apache::PAR::Static - create ability to cache on server startup
 * Implement RegistryLoader
+* Implement a HTML::Template::PAR, others
+* Redesign tests to generate par files, move contents to tmp directory if necessary
 * New features...
