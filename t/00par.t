@@ -5,11 +5,11 @@
 
 # change 'tests => 1' to 'tests => last_test_to_print';
 
-use Test;
-use Apache::test qw(skip_test have_httpd);
-skip_test unless have_httpd;
+use Apache::Test qw(plan ok have_lwp);
+use Apache::TestRequest qw(GET);
+use Apache::TestUtil qw(t_cmp);
 
-#plan tests => 3;
+#plan tests => 3, have_lwp;
 print "1..0 # skipped: Test not yet implemented.\n";
 exit;
 

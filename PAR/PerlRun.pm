@@ -13,7 +13,7 @@ use vars qw(@ISA %EXPORT_TAGS @EXPORT_OK @EXPORT $VERSION);
 @EXPORT = qw( );
 @ISA = qw(Exporter);
 
-$VERSION = '.14';
+$VERSION = '0.20';
 
 unless ($mod_perl::VERSION < 1.99) {
 	@ISA = qw(Exporter Apache::PAR::RegistryCooker);
@@ -129,9 +129,13 @@ File modification testing is performed on the script itself.  Otherwise modifyin
 
 Modules can be loaded from within the .par archive as if they were physically on the filesystem.  However, because of the way PAR.pm works, your scripts can also load modules within other .par packages, as well as modules from your @INC.
 
-By default, scripts are served under the scripts/ directory within a .par archive.  This value can be changed using the PARPerlRunPath variable, for instance:
+By default, scripts are served under the script/ directory within a .par archive.  This value can be changed using the PARPerlRunPath variable, for instance:
 
 PerlSetVar PARPerlRunPath perlrun/
+
+B<NOTE:> The default location has changed with Apache::PAR 0.20.  Previously, the default location for PerlRun scripts was the scripts/ directory.  To continue to use the old path in an archive, set the following in a web.conf:
+
+PerlSetVar PARPerlRunPath scripts/
 
 =head1 EXPORT
 

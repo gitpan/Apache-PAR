@@ -1,4 +1,16 @@
 Revision history for Perl extension Apache::PAR.
+0.20  Sun Apr ?? ??:??:?? 2003
+	- Changed to use Apache::Test for tests - testing should now work
+	  on Win32 and mod_perl 2.x
+	  ** Note: Apache::Test is now a required module for Apache::PAR **
+	- tutorial.pod moved under PAR (shouldn't go in main Apache dir)
+	- Change for consistancy with PAR.pm to default PerlRun and Registry
+	  scripts to use the /script directory instead of /scripts.
+	  ** All modules must be updated with this change **
+	  Modules can be updated by either changing the directory name
+	  inside the PAR archive, or by setting PARRegistyPath or 
+	  PARPerlRunPath to scripts/ within a web.conf
+	  Thanks to Autrijus Tang <autrijus@autrijus.org> for this fix.
 0.14  Sun Apr 30 13:00:00 2003
 	- Added ability to do caching to the Apache::PAR::Static module
 	  (see documentation in that module for details.)  To use caching

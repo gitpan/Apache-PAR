@@ -11,7 +11,7 @@ use vars qw(@ISA %EXPORT_TAGS @EXPORT_OK @EXPORT $VERSION);
 @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 @EXPORT = qw( );
 
-$VERSION = '0.14';
+$VERSION = '0.20';
 
 use Apache::Constants qw(OK NOT_FOUND FORBIDDEN);
 use Archive::Zip ();
@@ -68,7 +68,7 @@ sub _find_file_parts {
                 $path_name = 'PARRegistryPath';
         }
 
-	my $cur_path    = $r->dir_config($path_name) || 'scripts/';
+	my $cur_path    = $r->dir_config($path_name) || 'script/';
 	$cur_path =~ s/\/$//;
 
 	Archive::Zip::setErrorHandler(sub {});

@@ -6,7 +6,7 @@ use warnings FATAL => 'all';
 # we try to develop so we reload ourselves without die'ing on the warning
 no warnings qw(redefine); # XXX, this should go away in production!
 
-our $VERSION = '0.14';
+our $VERSION = '0.20';
 
 our @ISA = qw(ModPerl::RegistryCooker);
 use base qw(ModPerl::RegistryCooker);
@@ -110,7 +110,7 @@ sub _find_file_parts {
 	}
 	my $cur_path    = $r->dir_config->get($path_name);
 
-	$cur_path     ||= 'scripts/';
+	$cur_path     ||= 'script/';
 	$cur_path       =~ s/\/$//;
 
 	Archive::Zip::setErrorHandler(sub {});

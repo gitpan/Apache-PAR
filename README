@@ -1,4 +1,4 @@
-Apache/PAR version 0.14
+Apache/PAR version 0.20
 =======================
 
 Apache::PAR is a framework for including Perl ARchive files in a mod_perl (1.x or 2.x) environment.  It allows an author to package up a web application, including configuration, static files, Perl modules, and Registry and PerlRun scripts to include in a single file.  This archive can then be moved to other locations on the same system or distributed, and loaded with a single set of configuration options in the Apache configuration.
@@ -22,18 +22,20 @@ PAR.pm       >= .49
 Archive::Zip >= 1.05
 MIME::Types  >= 1.004
 mod_perl     >= 1.26 (or > 1.99)
+Apache::Test >= 1.03
 
 In addition, the following optional modules can provide additional functionality to Apache::PAR
 Cache::Cache >= 1.01 - Allows caching in the Apache::PAR::Static module
 
 
 MOD_PERL VERSION INFORMATION
+
+** Apache::PAR 0.20 has a non-backward compatible defaults change for Registry and PerlRun scripts, changing the default location from scripts/ to script/. **
+Please see the documentation for more information.
+
 Apache::PAR should work with both mod_perl 1.x and 2.x.  There are a few known issues however with this release and mod_perl 2.x:
 
-* The test scripts will currently fail under mod_perl 2.x or Win32 (Apache::test doesn't support mod_perl 2.x or Win32 currently)
-* (at a minimum) Apache::ServerUtil needs to be added to your Apache configuration file via use or PerlModule before any Apache::PAR modules are loaded.  This is due to the mod_perl version detection used by Apache::PAR
-* If you are using both mod_perl 1.x and mod_perl 2.x modules on the same machine, you will most likely also need to add Apache2 via "use Apache2" or "PerlModule Apache2"
-* mod_perl 2.x support is still pretty new to this module, please report any problems you have to nathan@byrd.net or par@perl.org
+* mod_perl 2.x and Apache::Test support is still pretty new to this module, please report any problems you have to nathan@byrd.net or par@perl.org
 
 
 COPYRIGHT AND LICENCE

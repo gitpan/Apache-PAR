@@ -5,54 +5,43 @@
 
 # change 'tests => 1' to 'tests => last_test_to_print';
 
-use Test;
-use Apache::test qw(skip_test have_httpd);
-skip_test unless have_httpd;
+use Apache::Test qw(plan ok have_lwp);
+use Apache::TestRequest qw(GET);
+use Apache::TestUtil qw(t_cmp);
 
-plan tests => 8;
+plan tests => 10, have_lwp;
 
 # Basic request
-my $response = Apache::test->fetch('/test/registry/test.pl');
-if(!$response->is_success) {
-	ok(0);
-	print STDERR "Received failure code: " . $response->code . "\n";
-}
-else {
-	ok(1);
-}
-
-# Basic request (again, just to make sure nothing funny is going on)
-my $response = Apache::test->fetch('/test/registry/test.pl');
-if(!$response->is_success) {
-	ok(0);
-	print STDERR "Received failure code: " . $response->code . "\n";
-}
-else {
-	ok(1);
+for(1..2)
+{
+	my $response = GET '/test/registry/test.pl';
+	if(!$response->is_success) {
+		ok(0);
+		print STDERR "Received failure code: " . $response->code . "\n";
+	}
+	else {
+		ok(1);
+	}
 }
 
 # test configuration setup directly in httpd
-my $response = Apache::test->fetch('/test/registryroot/test.pl');
-if(!$response->is_success) {
-	ok(0);
-	print STDERR "Received failure code: " . $response->code . "\n";
-}
-else {
-	ok(1);
-}
-
-# test configuration setup directly in httpd
-my $response = Apache::test->fetch('/test/registry2/test2.pl');
-if(!$response->is_success) {
-	ok(0);
-	print STDERR "Received failure code: " . $response->code . "\n";
-}
-else {
-	ok(1);
+for(1..2)
+{
+	foreach my $url qw(/test/registryroot/test.pl /test/registry2/test2.pl)
+	{
+		my $response = GET $url;
+		if(!$response->is_success) {
+			ok(0);
+			print STDERR "Received failure code: " . $response->code . "\n";
+		}
+		else {
+			ok(1);
+		}
+	}
 }
 
 # Test indexing
-$response = Apache::test->fetch('/test/registry/');
+$response = GET '/test/registry/';
 if($response->is_success) {
 	ok(0);
 	print STDERR "Should have received failure code, instead got: " . $response->code . "\n";
@@ -62,41 +51,21 @@ else {
 }
 
 # Test extra_path_info
-$response = Apache::test->fetch('/test/registry/test/path.pl/JAPH');
-if(!$response->is_success) {
-	ok(0);
-	print STDERR "Received failure code: " . $response->code . "\n";
-}
-else {
-	my $content = $response->content;
-	if($content ne  '/JAPH') {
+for (1..2)
+{
+	$response = GET '/test/registry/test/path.pl/JAPH';
+	if(!$response->is_success) {
 		ok(0);
-		print STDERR "Expected /JAPH, received $content\n";
+		print STDERR "Received failure code: " . $response->code . "\n";
 	}
 	else {
-		ok(1);
+		ok t_cmp('/JAPH', $response->content);
 	}
 }
 
-# Test extra_path_info (again, to make sure nothing funny is going on)
-$response = Apache::test->fetch('/test/registry/test/path.pl/JAPH');
-if(!$response->is_success) {
-	ok(0);
-	print STDERR "Received failure code: " . $response->code . "\n";
-}
-else {
-	my $content = $response->content;
-	if($content ne  '/JAPH') {
-		ok(0);
-		print STDERR "Expected /JAPH, received $content\n";
-	}
-	else {
-		ok(1);
-	}
-}
 
 # Test bad request (not found)
-my $response = Apache::test->fetch('/test/registry/test/not_found.pl');
+my $response = GET '/test/registry/test/not_found.pl';
 if($response->is_success) {
 	ok(0);
 	print STDERR "Should have failed, instead received: " . $response->code . "\n";
@@ -110,4 +79,3 @@ else {
 		ok(1);
 	}
 }
-

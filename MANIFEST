@@ -7,6 +7,7 @@ PAR/PerlRun.pm
 PAR/Static.pm
 PAR/ScriptBase.pm
 PAR/RegistryCooker.pm
+PAR/tutorial.pod
 README
 TODO
 t/00static.t
@@ -18,3 +19,6 @@ t/par/static.par
 t/par/registry.par
 t/par/perlrun.par
 t/par/module.par
+t/conf/extra.conf.in
+t/conf/modperl_1.pl
+t/conf/modperl_2.pl

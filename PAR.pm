@@ -8,7 +8,7 @@ require mod_perl; # For version detection
 # Since we don't use exporter, only export what we need
 use vars qw($VERSION %PARFILE_LIST);
 
-$VERSION = '0.14';
+$VERSION = '0.20';
 
 unless ($mod_perl::VERSION < 1.99) {
 	require Apache::ServerUtil;

@@ -5,14 +5,14 @@
 
 # change 'tests => 1' to 'tests => last_test_to_print';
 
-use Test;
-use Apache::test qw(skip_test have_httpd);
-skip_test unless have_httpd;
+use Apache::Test qw(plan ok have_lwp);
+use Apache::TestRequest qw(GET);
+use Apache::TestUtil qw(t_cmp);
 
-plan tests => 6;
+plan tests => 6, have_lwp;
 
 # Basic request
-my $response = Apache::test->fetch('/test/static/index.html');
+my $response = GET '/test/static/index.html';
 if(!$response->is_success) {
 	ok(0);
 	print STDERR "Received failure code: " . $response->code . "\n";
@@ -22,7 +22,7 @@ else {
 }
 
 # Test no path
-my $response = Apache::test->fetch('/test/static2/test.html');
+my $response = GET '/test/static2/test.html';
 if(!$response->is_success) {
 	ok(0);
 	print STDERR "Received failure code: " . $response->code . "\n";
@@ -32,7 +32,7 @@ else {
 }
 
 # Test indexing
-$response = Apache::test->fetch('/test/static/');
+$response = GET '/test/static/';
 if(!$response->is_success) {
 	ok(0);
 	print STDERR "Received failure code: " . $response->code . "\n";
@@ -42,24 +42,17 @@ else {
 }
 
 # Test default mime type
-$response = Apache::test->fetch('/test/static/test/test.tst');
+$response = GET '/test/static/test/test.tst';
 if(!$response->is_success) {
 	ok(0);
 	print STDERR "Received failure code: " . $response->code . "\n";
 }
 else {
-	my $content_type = $response->header('Content-Type');
-	if($content_type ne 'text/plain') {
-		ok(0);
-		print STDERR "Expected text/plain, received $content_type\n";
-	}
-	else {
-		ok(1);
-	}
+	ok t_cmp('text/plain', $response->header('Content-Type'));
 }
 
 # Test bad request (not found)
-my $response = Apache::test->fetch('/test/static/test/doc.txt');
+my $response = GET '/test/static/test/doc.txt';
 if($response->is_success) {
 	ok(0);
 	print STDERR "Should have failed, instead received: " . $response->code . "\n";
@@ -75,7 +68,7 @@ else {
 }
 
 # Test bad request (no directory indexing)
-my $response = Apache::test->fetch('/test/static/test/');
+my $response = GET '/test/static/test/';
 if($response->is_success) {
 	ok(0);
 	print STDERR "Should have failed, instead received: " . $response->code . "\n";
@@ -89,8 +82,3 @@ else {
 		ok(1);
 	}
 }
-
-#use Apache::PAR::Registry;
-#ok(1); # If we made it this far, we're ok.
-
-
