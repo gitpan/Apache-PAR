@@ -9,7 +9,7 @@ use Test;
 use Apache::test qw(skip_test have_httpd);
 skip_test unless have_httpd;
 
-BEGIN { plan tests => 6 };
+plan tests => 6;
 
 # Basic request
 my $response = Apache::test->fetch('/test/perlrun/test.pl');

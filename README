@@ -1,4 +1,4 @@
-Apache/PAR version 0.01
+Apache/PAR version 0.02
 =======================
 
 Apache::PAR is a framework for including Perl ARchive files in a mod_perl environment.  It allows an author to package up a web application, including configuration, static files, Perl modules, and Registry and PerlRun scripts to include in a single file.  This archive can then be moved to other locations on the same system or distributed, and loaded with a single set of configuration options in the Apache configuration.

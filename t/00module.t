@@ -9,7 +9,7 @@ use Test;
 use Apache::test qw(skip_test have_httpd);
 skip_test unless have_httpd;
 
-BEGIN { plan tests => 4 };
+plan tests => 4;
 
 # Basic request
 my $response = Apache::test->fetch('/test/module/');

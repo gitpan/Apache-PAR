@@ -5,8 +5,8 @@ PAR.pm
 PAR/Registry.pm
 PAR/PerlRun.pm
 PAR/Static.pm
+PAR/ScriptBase.pm
 README
-test.pl
 TODO
 t/00static.t
 t/00registry.t

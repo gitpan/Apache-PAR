@@ -1,112 +1,40 @@
 package Apache::PAR::Registry;
 
-use 5.006;
+use 5.005;
 use strict;
 use warnings;
 
 require Exporter;
+use vars qw(@ISA %EXPORT_TAGS @EXPORT_OK @EXPORT $VERSION);
+@ISA = qw(Exporter Apache::PAR::ScriptBase Apache::RegistryNG);
 
-our @ISA = qw(Exporter Apache::RegistryNG);
+%EXPORT_TAGS = ( 'all' => [ qw( ) ] );
 
-our %EXPORT_TAGS = ( 'all' => [ qw( ) ] );
+@EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 
-our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
+@EXPORT = qw( );
 
-our @EXPORT = qw( );
-
-our $VERSION = '0.01';
+$VERSION = '0.02';
 
 use Apache::RegistryNG;
 use Apache::Constants qw(:common);
-use Archive::Zip qw(:ERROR_CODES :CONSTANTS);
-
-sub readscript {
-	my $pr = shift;
-	
-	my $contents = $pr->{_member}->contents;
-	$pr->{'code'} = \$contents;
-}
+use Apache::PAR::ScriptBase;
 
 sub can_compile {
 	my $pr = shift;
 
 	my $status = $pr->SUPER::can_compile();
 	return $status unless $status eq OK;
-
-	my $r = $pr->{r};
-	my $filename  = $r->filename;
-	my $path_info = $r->path_info;
-
-	unless ($pr->_find_file_parts()) {
-		my $msg = "$path_info not found or unable to stat inside $filename";
-		$r->log_error($msg);
-		$r->notes('error-notes', $msg);
-		return NOT_FOUND;
-	}
-
-	if(defined($pr->{_member}) && $pr->{_member}->isDirectory()) {
-		$r->log_reason("Unable to serve directory from PAR file", $filename);
-		return FORBIDDEN;
-	}
-
-	$pr->{'mtime'} = $pr->{_member}->lastModTime();
-	return wantarray ? (OK, $pr->{'mtime'}) : OK;
+	return $pr->_can_compile();
 }
-
 
 sub namespace_from {
 	shift->{_script_path};
 }
 
-sub set_script_name {
-	my $pr = shift;
-	my $r  = $pr->{r};
-
-	my @file_parts = split(/\//, $pr->{_script_path});
-	my $filename = $file_parts[-1];
-	*0 = \$filename;
-}
-
-sub _find_file_parts {
-	my $pr          = shift;
-	my $r           = $pr->{r};
-	my $path_info   = $r->path_info;
-	my $filename    = $r->filename;
-
-	$path_info      =~ s/^\///;
-	my @path_broken = split(/\//, $path_info);
-	my $cur_path    = $r->dir_config('PARRegistryPath') || 'scripts/';
-	$cur_path =~ s/\/$//;
-
-	my $zip = Archive::Zip->new($filename);
-	unless(defined($zip)) {
-		$r->log_error("Unable to open file $filename");
-		return undef;
-	}
-
-	my $cur_member  = undef;
-	while(defined(($cur_member = $zip->memberNamed($cur_path) || $zip->memberNamed("$cur_path/"))) && @path_broken) {
-		last if(!$cur_member->isDirectory());
-		$cur_path .= '/' . shift(@path_broken);
-	}
-	$cur_member = $zip->memberNamed($cur_path);
-	return undef unless(defined($cur_member));
-
-	$pr->{_zip}             = $zip;
-	$pr->{_member}          = $cur_member;
-	$pr->{_script_path}     = $cur_path;
-	$pr->{_extra_path_info} = join('/', @path_broken);
-	return $cur_path;
-}
-
 sub run {
 	my $pr = shift;
-	my $r  = $pr->{r};
-	
-	my $path_info = $pr->{_extra_path_info} ? "/$pr->{_extra_path_info}" : '';
-	$r->path_info($path_info);
-	$r->filename($pr->{_script_path});
-
+	$pr->_set_path_info();	
 	return $pr->SUPER::run();
 }
 

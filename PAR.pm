@@ -1,20 +1,21 @@
 package Apache::PAR;
 
-use 5.006;
+use 5.005;
 use strict;
 use warnings;
 
 require Exporter;
 
-our @ISA = qw(Exporter);
+use vars qw(@ISA %EXPORT_TAGS @EXPORT_OK @EXPORT $VERSION);
+@ISA = qw(Exporter);
 
-our %EXPORT_TAGS = ( 'all' => [ qw( ) ] ); 
+%EXPORT_TAGS = ( 'all' => [ qw( ) ] ); 
 
-our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
+@EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 
-our @EXPORT = qw( );
+@EXPORT = qw( );
 
-our $VERSION = '0.01';
+$VERSION = '0.02';
 
 use Apache;
 use Apache::Server;

@@ -1,4 +1,12 @@
 Revision history for Perl extension Apache::PAR.
+0.02  Fri Dec 06 21:36:00 2002
+	- Added base module ScriptBase.pm for PerlRun.pm and Registry.pm
+	(code cleanup)
+	- Changed required Perl version to 5.005
+	- Fixed test code to allow skipping of tests
+	- Additional code cleanup
+	- Removed unused test file
+	- Added TODO items
 
 0.01  Tue Nov 26 21:04:37 2002
 	- original version; created by h2xs 1.21 with options
