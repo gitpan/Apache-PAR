@@ -14,7 +14,7 @@ use vars qw(@ISA %EXPORT_TAGS @EXPORT_OK @EXPORT $VERSION);
 
 @EXPORT = qw( );
 
-$VERSION = '0.02';
+$VERSION = '0.10';
 
 use Apache::Constants qw(:common);
 use Archive::Zip qw(:ERROR_CODES :CONSTANTS);
@@ -49,7 +49,7 @@ sub _can_compile {
 	}
 
 	if(defined($pr->{_member}) && $pr->{_member}->isDirectory()) {
-		r->log_reason("Unable to serve directory from PAR file", $filename);
+		$r->log_reason("Unable to serve directory from PAR file", $filename);
 		return FORBIDDEN;
 	}
 

@@ -3,8 +3,9 @@ Many things, including:
 * More security testing
 * Make it possible for other files to be loaded from within a .par archive by Registry and PerlRun scripts (without coding changes to the scripts?!)
 * Platform testing - currently only tested on x86 Linux, but should run on any platform that supports PAR.pm and Archive::Zip
-* Support for Apache 2/mod_perl 2
+* Improve support for Apache 2/mod_perl 2
+* Make test work under mod_perl2 or if running as root
 * Create base class for Apache::PAR::Static.pm (as a standalone CPAN module?)
 * Code cleanup
-* Create tutorial.pod to better explain usage
+* Make it run under Module::Builder?
 * New features...

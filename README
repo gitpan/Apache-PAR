@@ -1,7 +1,7 @@
 Apache/PAR version 0.02
 =======================
 
-Apache::PAR is a framework for including Perl ARchive files in a mod_perl environment.  It allows an author to package up a web application, including configuration, static files, Perl modules, and Registry and PerlRun scripts to include in a single file.  This archive can then be moved to other locations on the same system or distributed, and loaded with a single set of configuration options in the Apache configuration.
+Apache::PAR is a framework for including Perl ARchive files in a mod_perl (1.x or 2.x) environment.  It allows an author to package up a web application, including configuration, static files, Perl modules, and Registry and PerlRun scripts to include in a single file.  This archive can then be moved to other locations on the same system or distributed, and loaded with a single set of configuration options in the Apache configuration.
 
 These modules are based on PAR.pm by Autrijus Tang and Archive::Zip by Ned Konz, as well as the mod_perl modules.  They extend the concept of PAR files to mod_perl, similar to how WAR archives work for Java. An archive (which is really a zip file), contains one or more elements which can be served to clients making requests to an Apache web server.  Scripts, modules, and static content should then be able to be served from within the .par archive without modifications.
 
@@ -21,6 +21,16 @@ This module requires these other modules and libraries:
 PAR.pm       >= .49
 Archive::Zip >= 1.05
 MIME::Types  >= 1.004
+mod_perl     >= 1.26 (or > 1.99)
+
+MOD_PERL VERSION INFORMATION
+Currently (as of 0.10) Apache::PAR should work with both mod_perl 1.x and 2.x.  There are a few known issues however with this release and mod_perl 2.x:
+
+* The test scripts will currently fail under mod_perl 2.x (Apache::test doesn't support mod_perl 2.x currently)
+* (at a minimum) Apache::ServerUtil needs to be added to your Apache configuration file via use or PerlModule before any Apache::PAR modules are loaded.  This is due to the mod_perl version detection used by Apache::PAR
+* If you are using both mod_perl 1.x and mod_perl 2.x modules on the same machine, you will most likely also need to add Apache2 via "use Apache2" or "PerlModule Apache2"
+* mod_perl 2.x support is still pretty new to this module, please report any problems you have to nathan@byrd.net or par@perl.org
+
 
 COPYRIGHT AND LICENCE
 

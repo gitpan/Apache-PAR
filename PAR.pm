@@ -15,10 +15,17 @@ use vars qw(@ISA %EXPORT_TAGS @EXPORT_OK @EXPORT $VERSION);
 
 @EXPORT = qw( );
 
-$VERSION = '0.02';
+$VERSION = '0.10';
 
-use Apache;
-use Apache::Server;
+if(eval "Apache::exists_config_define('MODPERL2')") {
+	require Apache::ServerUtil;
+	require APR::Table;
+}
+else {
+	require Apache;
+	require Apache::Server;
+}
+
 use Archive::Zip qw(:ERROR_CODES :CONSTANTS);
 
 my @pardir      = Apache->server->dir_config->get('PARDir');
@@ -68,9 +75,15 @@ foreach my $file (@pars) {
 	next if(!defined($conf_member));
 	print STDERR "Including configuration from $file\n";
 	my $conf = $conf_member->contents;
+	my $err = undef;
 	$conf =~ s/##PARFILE##/$file/g;
-	Apache->httpd_conf($conf);
-
+	if(eval "Apache::exists_config_define('MODPERL2')") {
+		$err = Apache->server->add_config([split /\n/, $conf]);
+	} else
+	{
+		Apache->httpd_conf($conf);
+	}
+	die $err if $err;
 }
 
 
@@ -79,11 +92,14 @@ __END__
 
 =head1 NAME
 
-Apache::PAR - Perl extension for including Perl ARchive files in a mod_perl environment.
+Apache::PAR - Perl extension for including Perl ARchive files in a mod_perl (1.x or 2.x) environment.
 
 =head1 SYNOPSIS
 
   Inside Apache configuration:
+    <IfDefine MODPERL2>
+      PerlModule Apache::ServerUtil
+    </IfDefine>
     PARDir /path/to/par/archive/directory
     ...
     PARFile /path/to/a/par/file.par
@@ -125,7 +141,7 @@ Apache::PAR - Perl extension for including Perl ARchive files in a mod_perl envi
 
 =head1 DESCRIPTION
 
-Apache::PAR is a framework for including Perl ARchive files in a mod_perl environment.  It allows an author to package up a web application, including configuration, static files, Perl modules, and Registry and PerlRun scripts to include in a single file.  This archive can then be moved to other locations on the same system or distributed, and loaded with a single set of configuration options in the Apache configuration.
+Apache::PAR is a framework for including Perl ARchive files in a mod_perl (1.x or 2.x) environment.  It allows an author to package up a web application, including configuration, static files, Perl modules, and Registry and PerlRun scripts to include in a single file.  This archive can then be moved to other locations on the same system or distributed, and loaded with a single set of configuration options in the Apache configuration.
 
 These modules are based on PAR.pm by Autrijus Tang and Archive::Zip by Ned Konz, as well as the mod_perl modules.  They extend the concept of PAR files to mod_perl, similar to how WAR archives work for Java. An archive (which is really a zip file), contains one or more elements which can be served to clients making requests to an Apache web server.  Scripts, modules, and static content should then be able to be served from within the .par archive without modifications.
 

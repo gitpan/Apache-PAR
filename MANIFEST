@@ -6,6 +6,7 @@ PAR/Registry.pm
 PAR/PerlRun.pm
 PAR/Static.pm
 PAR/ScriptBase.pm
+PAR/RegistryCooker.pm
 README
 TODO
 t/00static.t

@@ -1,4 +1,7 @@
 Revision history for Perl extension Apache::PAR.
+0.10  Sat Feb 01 21:20:00 2003
+	- Added initial support for mod_perl 2!
+	- See TODO for more information
 0.02  Fri Dec 06 21:36:00 2002
 	- Added base module ScriptBase.pm for PerlRun.pm and Registry.pm
 	(code cleanup)

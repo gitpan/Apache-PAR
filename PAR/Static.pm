@@ -15,10 +15,23 @@ use vars qw(@ISA %EXPORT_TAGS @EXPORT_OK @EXPORT $VERSION);
 
 @EXPORT = qw( );
 
-$VERSION = '0.02';
+$VERSION = '0.10';
 
-use Apache::Constants qw(OK NOT_FOUND FORBIDDEN);
-use Apache::File;
+if(eval "Apache::exists_config_define('MODPERL2')") {
+	require Apache::Const;
+	import Apache::Const qw(OK NOT_FOUND FORBIDDEN);
+	require Apache::Response;
+	require Apache::RequestRec;
+	require Apache::RequestIO;
+	require Apache::RequestUtil;
+	require APR::Table;
+}
+else {
+	require Apache::Constants;
+	import Apache::Constants qw(OK NOT_FOUND FORBIDDEN);
+	require Apache::File;
+}
+
 use MIME::Types();
 
 sub handler {
@@ -28,21 +41,21 @@ sub handler {
 
 	(my $path_info = $r->path_info) =~ s/^\///;
 
-	my $file_path    = $r->dir_config('PARStaticFilesPath') || 'htdocs/';
+	my $file_path    = $r->dir_config->get('PARStaticFilesPath') || 'htdocs/';
 	$file_path      .= '/' if ($file_path !~ /\/$/);
 	$file_path      .= $path_info;
 
 	my $zip = Archive::Zip->new($filename);
-	return NOT_FOUND unless(defined($zip));
+	return NOT_FOUND() unless(defined($zip));
 
 	my $member = $zip->memberNamed($file_path) || $zip->memberNamed("$file_path/");
-	return NOT_FOUND unless(defined($member));
+	return NOT_FOUND() unless(defined($member));
 
 	if($member->isDirectory()) {
 		my @index_list = $r->dir_config->get('PARStaticDirectoryIndex');
 		unless (@index_list) {
 			$r->log_error('Cannot serve directory - set PARStaticDirectoryIndex to enable');
-			return FORBIDDEN;
+			return FORBIDDEN();
 		}
 		$file_path =~ s/\/$//;
 		foreach my $index_name (@index_list) {
@@ -53,19 +66,18 @@ sub handler {
 		}
 		if(!defined($member) || $member->isDirectory()) {
 			$r->log_error('Cannot serve directory.');
-			return FORBIDDEN;
+			return FORBIDDEN();
 		}
 	}	
 
 	my $contents = $member->contents;
-	return NOT_FOUND unless defined($contents);
+	return NOT_FOUND() unless defined($contents);
 
 	my $last_modified = $member->lastModTime();
 
 	$r->headers_out->set('Accept-Ranges' => 'bytes');
 
-
-	$r->content_type(MIME::Types::by_suffix($file_path)->[0] || $r->dir_config('PARStaticDefaultMIME') || 'text/plain');
+	$r->content_type(MIME::Types::by_suffix($file_path)->[0] || $r->dir_config->get('PARStaticDefaultMIME') || 'text/plain');
 	(my $package = __PACKAGE__) =~ s/::/\//g;
 	$r->update_mtime($last_modified);
 	$r->update_mtime((stat $INC{"$package.pm"})[9]);
@@ -73,16 +85,19 @@ sub handler {
 
 	$r->set_content_length(length($contents));
 
-	my $range_request = $r->set_byterange;
 
-	if((my $status = $r->meets_conditions) == OK) {
+	if((my $status = $r->meets_conditions) eq OK()) {
 		$r->send_http_header;
 	}
 	else {
 		return $status;
 	}
+	return OK() if $r->header_only;
 
-	return OK if $r->header_only;
+	my $range_request = 0;
+	if(!eval "Apache::exists_config_define('MODPERL2')") {
+		$range_request = $r->set_byterange;
+	}
 
 	if($range_request) {
 		while(my($offset, $length) = $r->each_byterange) {
@@ -92,8 +107,7 @@ sub handler {
 	else {
 		$r->print($contents);
 	}
-
-	return OK;
+	return OK();
 }
 
 1;
@@ -138,7 +152,7 @@ Currently, Apache::PAR::Static does not have the ability to generate directory i
 The default directory to serve static content out of in a .par file is htdocs/ to override this, set the PARStaticFilesPath variable.  For example, to set this to serve files from a static/ directory within the .par file, use:
   PerlSetVar PARStaticFilesPath static/
 
-Byte range requests are supported, to facilitate the serving of PDF files, etc.
+Under mod_perl 1.x, byte range requests are supported, to facilitate the serving of PDF files, etc. For mod_perl 2.x users, use the appropriate Apache filter (currently untested.)
 
 =head1 EXPORT
 

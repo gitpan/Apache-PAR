@@ -1,30 +1,69 @@
 package Apache::PAR::PerlRun;
 
-use 5.005;
 use strict;
 use warnings;
 
 require Exporter;
 use vars qw(@ISA %EXPORT_TAGS @EXPORT_OK @EXPORT $VERSION);
-@ISA = qw(Exporter Apache::PAR::ScriptBase Apache::PerlRun);
-
 %EXPORT_TAGS = ( 'all' => [ qw( ) ] );
 
 @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 
 @EXPORT = qw( );
 
-$VERSION = '0.02';
+$VERSION = '.10';
 
-use Apache::PerlRun;
-use Apache::Constants qw(:common);
-use Apache::PAR::ScriptBase;
+@ISA = qw(Exporter);
+
+if(eval "Apache::exists_config_define('MODPERL2')") {
+	@ISA = qw(Exporter Apache::PAR::RegistryCooker);
+	require Apache::PAR::RegistryCooker;
+	require Apache::Const;
+	import Apache::Const qw(OK);
+}
+else {
+	@ISA = qw(Exporter Apache::PAR::ScriptBase Apache::PerlRun);
+	require Apache::PerlRun;
+	require Apache::PAR::ScriptBase;
+	require Apache::Constants;
+	import Apache::Constants qw(OK);
+}
+
+my $parent = 'Apache::PAR::RegistryCooker';
+
+my %aliases = (
+	new             => 'new',
+	init            => 'init',
+	default_handler => 'default_handler',
+	run             => 'run',
+	make_namespace  => 'make_namespace',
+	namespace_root  => 'namespace_root',
+	is_cached       => 'FALSE',
+	should_compile  => 'TRUE',
+	flush_namespace => 'flush_namespace_normal',
+	cache_it        => 'NOP',
+	rewrite_shebang => 'rewrite_shebang',
+	chdir_file      => 'chdir_file_normal',
+	get_mark_line   => 'get_mark_line',
+	compile         => 'compile',
+	error_check     => 'error_check',
+	strip_end_data_segment             => 'strip_end_data_segment',
+	convert_script_to_compiled_handler => 'convert_script_to_compiled_handler',
+	can_compile     => $parent . '::can_PAR_compile',
+	read_script     => $parent . '::read_PAR_script',
+	set_script_name => $parent . '::set_PAR_script_name',
+	namespace_from  => $parent . '::namespace_from_PAR',
+);
+
+if(eval "Apache::exists_config_define('MODPERL2')") {
+	__PACKAGE__->install_aliases(\%aliases);
+}
 
 sub can_compile {
 	my $pr = shift;
 
 	my $status = $pr->SUPER::can_compile();
-	return $status unless $status eq OK;
+	return $status unless $status eq OK();
 	return $pr->_can_compile();
 }
 
@@ -54,13 +93,12 @@ sub compile {
 	return $pr->SUPER::compile($eval);
 }
 
-
 1;
 __END__
 
 =head1 NAME
 
-Apache::PAR::PerlRun - Apache::PerlRun subclass which serves Apache::PerlRun scripts to clients from within .par files.
+Apache::PAR::PerlRun - Apache::PerlRun (or ModPerl::PerlRun) subclass which serves PerlRun scripts to clients from within .par files.
 
 =head1 SYNOPSIS
 
@@ -76,7 +114,7 @@ A sample configuration (within a web.conf) is below:
 
 =head1 DESCRIPTION
 
-Subclass of Apache::PerlRun to serve Apache::PerlRun scripts to clients from within .par files.  PerlRun scripts should continue to operate as they did before when inside a .par archive.
+Subclass of Apache::PerlRun (or ModPerl::PerlRun) to serve PerlRun scripts to clients from within .par files.  PerlRun scripts should continue to operate as they did before when inside a .par archive.
 
 To use, add Apache::PAR::PerlRun into the Apache configuration, either through an Apache configuration file, or through a web.conf file (discussed in more detail in the Apache::PAR manpage.)
 
@@ -107,7 +145,7 @@ Nathan Byrd, E<lt>nathan@byrd.netE<gt>
 
 L<perl>.
 
-L<PAR>, L<Apache::PAR>, and L<Apache::PerlRun>.
+L<PAR>, L<Apache::PAR>, and L<Apache::PerlRun> or L<ModPerl::PerlRun>.
 
 =head1 COPYRIGHT
 

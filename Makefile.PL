@@ -10,6 +10,11 @@ my %params = Apache::test->get_test_params();
 # it could be different than the current directory
 my $par_path = Cwd::abs_path("t/par");
 my $extra_conf = <<CONF;
+<IfDefine MODPERL2>
+PerlModule Apache2
+PerlModule Apache::ServerUtil
+PerlModule Apache::Server
+</IfDefine>
 PerlSetVar PARFile $par_path/registry.par
 PerlAddVar PARFile $par_path/static.par
 PerlAddVar PARFile $par_path/perlrun.par
