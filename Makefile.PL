@@ -12,13 +12,13 @@ my $par_path = Cwd::abs_path("t/par");
 my $extra_conf = <<CONF;
 <IfDefine MODPERL2>
 PerlModule Apache2
-PerlModule Apache::ServerUtil
-PerlModule Apache::Server
 </IfDefine>
-PerlSetVar PARFile $par_path/registry.par
-PerlAddVar PARFile $par_path/static.par
-PerlAddVar PARFile $par_path/perlrun.par
-PerlAddVar PARFile $par_path/module.par
+PerlSetVar PARInclude $par_path/static.par
+PerlAddVar PARInclude $par_path/perlrun.par
+# Should ignore duplicates
+PerlAddVar PARInclude $par_path/perlrun.par
+# Try it this way too for support of old versions
+PerlSetVar PARFile $par_path/module.par
 
 Alias /test/registryroot/ $par_path/registry.par/
 <Location /test/registryroot>
@@ -52,10 +52,20 @@ PerlHandler Apache::PAR::PerlRun
 PerlSetVar PARPerlRunPath scripts2/
 </Location>
 
+Alias /test/static2/ $par_path/static.par/
+<Location /test/static2>
+SetHandler perl-script
+PerlHandler Apache::PAR::Static
+PerlSetVar PARStaticFilesPath /
+</Location>
+
 #PerlAddVar PARFile $par_path/bad.par
 #PerlAddVar PARFile $par_path/not_found.par
 #PerlAddVar PARDir $par_path/not_dir/
 PerlModule Apache::PAR
+<PERL>
+import Apache::PAR qw($par_path/registry.par);
+</PERL>
 CONF
 
 Apache::test->write_httpd_conf(%params, include => $extra_conf);

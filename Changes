@@ -1,4 +1,14 @@
 Revision history for Perl extension Apache::PAR.
+0.12  Thu Mar 27 22:00:00 2003
+	- Some testing performed on Win32 platforms Win 98 and Win 2k 
+	  (thanks to Raymond Field.  Documentation changed to reflect 
+	  necessary changes to get Apache::PAR up and running on Win32.
+	- Better mod_perl 2.x detection.  No longer requires 
+	  Apache::ServerUtil
+	- Support for Apache::Static pulling from root directory of 
+	  PAR file
+	- New configuration mechanism, through PARInclude directive and
+	  use/include lines in startup.pl or PERL sections
 0.11  Mon Mar 10 21:51:00 2003
 	- Changes to stay compatible with latest mod_perl CVS.  This
 	  change is not backwards compatible, however.  For mod_perl 2.x

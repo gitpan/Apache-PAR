@@ -5,7 +5,7 @@ use strict;
 use warnings;
 
 require Exporter;
-
+require mod_perl; # for version detection
 use vars qw(@ISA %EXPORT_TAGS @EXPORT_OK @EXPORT $VERSION);
 @ISA = qw(Exporter);
 
@@ -15,9 +15,9 @@ use vars qw(@ISA %EXPORT_TAGS @EXPORT_OK @EXPORT $VERSION);
 
 @EXPORT = qw( );
 
-$VERSION = '0.11';
+$VERSION = '0.12';
 
-if(eval "Apache::exists_config_define('MODPERL2')") {
+unless ($mod_perl::VERSION < 1.99) {
 	require Apache::Const;
 	import Apache::Const qw(OK NOT_FOUND FORBIDDEN);
 	require Apache::Response;
@@ -29,6 +29,7 @@ if(eval "Apache::exists_config_define('MODPERL2')") {
 else {
 	require Apache::Constants;
 	import Apache::Constants qw(OK NOT_FOUND FORBIDDEN);
+	require Apache::Log;
 	require Apache::File;
 }
 
@@ -46,17 +47,20 @@ sub handler {
 	$file_path      .= '/' if ($file_path !~ /\/$/);
 	$file_path      .= $path_info;
 
+	$file_path =~ s/^\///;
+
 	Archive::Zip::setErrorHandler(sub {});
 	my $zip = Archive::Zip->new($filename);
 	return NOT_FOUND() unless(defined($zip));
 
+	return NOT_FOUND() if ($file_path eq '');
 	my $member = $zip->memberNamed($file_path) || $zip->memberNamed("$file_path/");
 	return NOT_FOUND() unless(defined($member));
 
 	if($member->isDirectory()) {
 		my @index_list = $r->dir_config->get('PARStaticDirectoryIndex');
 		unless (@index_list) {
-			$r->log_error('Cannot serve directory - set PARStaticDirectoryIndex to enable');
+			$r->log_error('Apache::PAR::Static: Cannot serve directory - set PARStaticDirectoryIndex to enable');
 			return FORBIDDEN();
 		}
 		$file_path =~ s/\/$//;
@@ -67,7 +71,7 @@ sub handler {
 			}
 		}
 		if(!defined($member) || $member->isDirectory()) {
-			$r->log_error('Cannot serve directory.');
+			$r->log_error('Apache::PAR::Static: Cannot serve directory - Index file does not exist.');
 			return FORBIDDEN();
 		}
 	}	
@@ -89,7 +93,7 @@ sub handler {
 
 
 	if((my $status = $r->meets_conditions) eq OK()) {
-		if(!eval "Apache::exists_config_define('MODPERL2')") {
+		if ($mod_perl::VERSION < 1.99) {
 			$r->send_http_header;
 		}
 	}
@@ -99,7 +103,8 @@ sub handler {
 	return OK() if $r->header_only;
 
 	my $range_request = 0;
-	if(!eval "Apache::exists_config_define('MODPERL2')") {
+
+	if ($mod_perl::VERSION < 1.99) {
 		$range_request = $r->set_byterange;
 	}
 
@@ -129,6 +134,7 @@ A sample configuration (within a web.conf) is below:
   <Location /myapp/static>
     SetHandler perl-script
     PerlHandler Apache::PAR::Static
+    PerlSetVar PARStaticFilesPath htdocs/
     PerlSetVar PARStaticDirectoryIndex index.htm
     PerlAddVar PARStaticDirectoryIndex index.html
     PerlSetVar PARStaticDefaultMIME text/html
@@ -153,10 +159,23 @@ To set the default MIME type for requests, use:
 
 Currently, Apache::PAR::Static does not have the ability to generate directory indexes for directories inside .par files.  Also, other Apache module features, such as language priority, do not take effect for content inside .par archives.
 
-The default directory to serve static content out of in a .par file is htdocs/ to override this, set the PARStaticFilesPath variable.  For example, to set this to serve files from a static/ directory within the .par file, use:
+The default directory to serve static content out of in a .par file is htdocs/ to override this, set the PARStaticFilesPath directive.  For example, to set this to serve files from a static/ directory within the .par file, use:
+
   PerlSetVar PARStaticFilesPath static/
 
-Under mod_perl 1.x, byte range requests are supported, to facilitate the serving of PDF files, etc. For mod_perl 2.x users, use the appropriate Apache filter (currently untested.)
+B<TIP:> To serve the contents of a zip file as static content, this module can be used standalone (without the main Apache::PAR module).  Try something like the following (in an httpd.conf file):
+
+  Alias /zipcontents/ /path/to/a/zip/file.zip/
+  <Location /zipcontents>
+    SetHandler perl-script
+    PerlHandler Apache::PAR::Static
+    PerlSetVar PARStaticFilesPath /
+    PerlSetVar PARStaticDirectoryIndex index.htm
+    PerlAddVar PARStaticDirectoryIndex index.html
+    PerlSetVar PARStaticDefaultMIME text/html
+  </Location>
+
+B<NOTE:> Under mod_perl 1.x, byte range requests are supported, to facilitate the serving of PDF files, etc. For mod_perl 2.x users, use the appropriate Apache filter (currently untested.)
 
 =head1 EXPORT
 
@@ -169,6 +188,8 @@ Nathan Byrd, E<lt>nathan@byrd.netE<gt>
 =head1 SEE ALSO
 
 L<perl>.
+
+L<Apache::PAR>.
 
 L<PAR>.
 

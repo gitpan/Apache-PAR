@@ -9,10 +9,20 @@ use Test;
 use Apache::test qw(skip_test have_httpd);
 skip_test unless have_httpd;
 
-plan tests => 5;
+plan tests => 6;
 
 # Basic request
 my $response = Apache::test->fetch('/test/static/index.html');
+if(!$response->is_success) {
+	ok(0);
+	print STDERR "Received failure code: " . $response->code . "\n";
+}
+else {
+	ok(1);
+}
+
+# Test no path
+my $response = Apache::test->fetch('/test/static2/test.html');
 if(!$response->is_success) {
 	ok(0);
 	print STDERR "Received failure code: " . $response->code . "\n";

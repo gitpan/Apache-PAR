@@ -1,4 +1,4 @@
-Apache/PAR version 0.02
+Apache/PAR version 0.12
 =======================
 
 Apache::PAR is a framework for including Perl ARchive files in a mod_perl (1.x or 2.x) environment.  It allows an author to package up a web application, including configuration, static files, Perl modules, and Registry and PerlRun scripts to include in a single file.  This archive can then be moved to other locations on the same system or distributed, and loaded with a single set of configuration options in the Apache configuration.
@@ -26,7 +26,7 @@ mod_perl     >= 1.26 (or > 1.99)
 MOD_PERL VERSION INFORMATION
 Currently (as of 0.10) Apache::PAR should work with both mod_perl 1.x and 2.x.  There are a few known issues however with this release and mod_perl 2.x:
 
-* The test scripts will currently fail under mod_perl 2.x (Apache::test doesn't support mod_perl 2.x currently)
+* The test scripts will currently fail under mod_perl 2.x or Win32 (Apache::test doesn't support mod_perl 2.x or Win32 currently)
 * (at a minimum) Apache::ServerUtil needs to be added to your Apache configuration file via use or PerlModule before any Apache::PAR modules are loaded.  This is due to the mod_perl version detection used by Apache::PAR
 * If you are using both mod_perl 1.x and mod_perl 2.x modules on the same machine, you will most likely also need to add Apache2 via "use Apache2" or "PerlModule Apache2"
 * mod_perl 2.x support is still pretty new to this module, please report any problems you have to nathan@byrd.net or par@perl.org

@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 require Exporter;
+require mod_perl; # for version detection
 use vars qw(@ISA %EXPORT_TAGS @EXPORT_OK @EXPORT $VERSION);
 %EXPORT_TAGS = ( 'all' => [ qw( ) ] );
 
@@ -11,11 +12,11 @@ use vars qw(@ISA %EXPORT_TAGS @EXPORT_OK @EXPORT $VERSION);
 
 @EXPORT = qw( );
 
-$VERSION = '.11';
+$VERSION = '.12';
 
 @ISA = qw(Exporter);
 
-if(eval "Apache::exists_config_define('MODPERL2')") {
+unless ($mod_perl::VERSION < 1.99) {
 	@ISA = qw(Exporter Apache::PAR::RegistryCooker);
 	require Apache::PAR::RegistryCooker;
 	require Apache::Const;
@@ -55,7 +56,7 @@ my %aliases = (
 	namespace_from  => $parent . '::namespace_from_PAR',
 );
 
-if(eval "Apache::exists_config_define('MODPERL2')") {
+unless ($mod_perl::VERSION < 1.99) {
 	__PACKAGE__->install_aliases(\%aliases);
 }
 

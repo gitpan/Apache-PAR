@@ -14,7 +14,7 @@ use vars qw(@ISA %EXPORT_TAGS @EXPORT_OK @EXPORT $VERSION);
 
 @EXPORT = qw( );
 
-$VERSION = '0.11';
+$VERSION = '0.12';
 
 use Apache::Constants qw(:common);
 use Archive::Zip qw(:ERROR_CODES :CONSTANTS);
